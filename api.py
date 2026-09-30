@@ -15,6 +15,18 @@ from typing import Any
 
 from crewai import LLM
 
+# Disable LiteLLM's Anthropic-style prompt caching headers.
+# LiteLLM incorrectly injects 'cache_breakpoint' into system messages,
+# which Groq does not support and returns a 400 Bad Request error.
+try:
+    import litellm
+    litellm.cache = None
+    litellm.disable_cache = True
+    os.environ["LITELLM_CACHE"] = "False"
+    os.environ["LITELLM_CACHING"] = "False"
+except Exception:
+    pass
+
 
 DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b"
 
@@ -95,6 +107,17 @@ def get_crewai_llm(
 
     # LiteLLM looks for GROQ_API_KEY in the environment
     os.environ["GROQ_API_KEY"] = api_key
+
+    # Reinforce: disable LiteLLM caching at call time to prevent 'cache_breakpoint'
+    # being injected into Groq messages (Groq doesn't support this Anthropic property)
+    os.environ["LITELLM_CACHE"] = "False"
+    os.environ["LITELLM_CACHING"] = "False"
+    try:
+        import litellm as _litellm
+        _litellm.cache = None
+        _litellm.disable_cache = True
+    except Exception:
+        pass
 
     selected_model = model_name or get_groq_model()
     model_identifier = format_groq_model_identifier(selected_model)
