@@ -1,0 +1,10 @@
+# requirements.txt - Verified dependencies for ResearchPilot AI
+# Target Python version: 3.12 (Streamlit Community Cloud compatible)
+
+crewai==1.15.23
+crewai-tools==1.15.23
+groq==1.7.0
+streamlit==1.64.0
+tavily-python==0.8.4
+pyyaml>=6.0.2
+pydantic>=2.4.2

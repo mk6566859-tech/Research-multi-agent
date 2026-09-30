@@ -1,0 +1,104 @@
+# config/tasks.yaml
+# Task descriptions and expected outputs for ResearchPilot AI
+
+research_plan_task:
+  description: >
+    Analyze the user's research request on '{topic}'.
+    Consider the requested research depth ('{research_depth}') and focus filter ('{focus_area}').
+    Deconstruct the subject into 3 to 5 targeted research subtopics/questions.
+    Identify the specific types of evidence needed (e.g., government data, scientific benchmarks,
+    industry reports, recent news). Establish recency requirements if the topic references
+    current events or a specific year.
+    Deliver an actionable research blueprint that the Web Researcher can directly execute.
+  expected_output: >
+    A structured Markdown research plan detailing:
+    1. Executive Scope & Objectives
+    2. 3 to 5 Targeted Research Subtopics & Specific Search Queries
+    3. Authority Criteria (e.g., preference for .gov, .edu, official docs, tier-1 media)
+    4. Temporal and Recency Constraints
+
+research_task:
+  description: >
+    Execute the research plan for '{topic}'.
+    Use the 'tavily_web_search' tool to conduct live web searches for each subtopic and query
+    outlined in the research plan.
+    For each search performed:
+    - Search for authoritative, reputable, and recent publications.
+    - Collect detailed findings, metrics, and direct evidence.
+    - Record EVERY source with its Source ID (e.g., [S1], [S2], ...), Full Title, Exact URL,
+      Domain/Publisher, Publication Date (if available), and Excerpted Evidence.
+    Do NOT fabricate search results, URLs, or data. If a query yields limited results, refine the search.
+  expected_output: >
+    A comprehensive raw research dossier featuring 6 to 12 distinct, high-quality sources.
+    Each source record MUST follow this format:
+    ---
+    Source ID: [S1]
+    Title: <Exact Page/Document Title>
+    URL: <Complete, valid HTTPS URL>
+    Domain: <e.g., reuters.com, nature.com>
+    Published Date: <Date if available, or 'Not specified'>
+    Key Evidence: <Key facts, quotes, metrics, and findings>
+    ---
+
+analysis_task:
+  description: >
+    Critically analyze the collected sources from the Web Researcher for '{topic}'.
+    Extract core factual claims, quantitative metrics, market data, and scientific conclusions.
+    Evaluate the credibility and authority of each source:
+    - Prioritize primary documents, official government agencies, peer-reviewed journals, and established research institutions.
+    - Identify and flag any low-credibility, duplicate, or sponsored content.
+    Group the extracted evidence cleanly by research subtopic.
+    CRITICAL: Maintain the exact Source ID (e.g., [S1], [S2]) and full URL alongside every single claim.
+    Do not generate any unsupported or unsourced assertions.
+  expected_output: >
+    A structured Evidence Matrix organizing:
+    - Core Themes and Subtopics
+    - Extracted Claims & Metrics mapped directly to their originating Source ID [S#] and URL
+    - Source Reliability & Authority Evaluation
+    - Identified Gaps or Conflicting Points requiring verification
+
+fact_check_task:
+  description: >
+    Examine the evidence matrix for '{topic}'.
+    Perform rigorous fact-checking on all critical numbers, historical dates, and controversial claims.
+    If any statistic is surprising, inconsistent across sources, or poorly supported, use the
+    'tavily_web_search' tool to re-search and independently corroborate the claim.
+    Categorize all findings into:
+    1. VERIFIED: Confirmed by multiple sources or high-authority primary documentation.
+    2. CONTESTED / DISPUTED: Differing figures or perspectives across reputable sources (summarize both sides).
+    3. UNVERIFIED / UNCERTAIN: Lacks sufficient evidence (must be explicitly acknowledged as uncertain).
+    Assign permanent reference numbers [1], [2], [3]... to the verified sources.
+  expected_output: >
+    A Verified Evidence Dossier containing:
+    1. Verified Findings Table (Claim, Status [VERIFIED/CONTESTED/UNCERTAIN], Source Reference Number [1], [2], etc., and URLs)
+    2. Resolution of Contested Information or Discrepancies
+    3. Clean Master Source Index mapping each reference number [N] to its Title, Publisher, and Verified URL.
+
+report_task:
+  description: >
+    Author the final, publication-grade Research Report on '{topic}'.
+    Synthesize the report EXCLUSIVELY from the verified evidence dossier and source index provided.
+    STRICT RULES:
+    1. Every factual statement, statistic, and significant claim MUST feature an inline numbered citation
+       using square brackets, e.g., [1], [2], or [1][3].
+    2. Place citations directly adjacent to the relevant sentence or clause.
+    3. NEVER invent, extrapolate, or hallucinate citations or URLs. Only cite sources from the verified index.
+    4. Maintain an objective, authoritative, and analytical tone. Highlight limitations or uncertainty where noted.
+    5. The report must conclude with a dedicated "### Sources" section listing every cited source:
+       [1] Source Title — Publisher
+       URL
+       [2] Source Title — Publisher
+       URL
+  expected_output: >
+    A polished, beautifully structured Markdown research report with:
+    # Research Report: <Topic Title>
+    ## Executive Summary
+    ## Introduction & Research Scope
+    ## Key Findings
+    ## Detailed Analysis & Thematic Discussion (with inline citations [1], [2])
+    ## Critical Challenges, Controversies & Nuances
+    ## Future Outlook & Implications
+    ## Limitations & Uncertainty
+    ## Sources
+    [1] Title — Publisher
+    URL
