@@ -3,6 +3,7 @@
 
 crewai==1.15.23
 crewai-tools==1.15.23
+litellm>=1.52.0
 groq==1.7.0
 streamlit==1.64.0
 tavily-python==0.8.4

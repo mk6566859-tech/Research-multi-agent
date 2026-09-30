@@ -73,6 +73,7 @@ def format_groq_model_identifier(model_name: str) -> str:
     """
     Ensure the model identifier is properly prefixed with 'groq/' for CrewAI's LiteLLM handler.
     Example: 'openai/gpt-oss-120b' -> 'groq/openai/gpt-oss-120b'
+    Avoids double-prefixing if already starts with 'groq/'.
     """
     clean_name = model_name.strip()
     if clean_name.startswith("groq/"):
@@ -87,11 +88,12 @@ def get_crewai_llm(
 ) -> LLM:
     """
     Initialize and return a centralized CrewAI LLM instance configured for Groq.
+    Requires litellm to be installed (included in requirements.txt).
     Agents reuse this single configuration without hardcoding credentials.
     """
     api_key = get_groq_api_key()
 
-    # LiteLLM internally looks for GROQ_API_KEY in environment
+    # LiteLLM looks for GROQ_API_KEY in the environment
     os.environ["GROQ_API_KEY"] = api_key
 
     selected_model = model_name or get_groq_model()
