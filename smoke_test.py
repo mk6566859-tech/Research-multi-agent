@@ -92,8 +92,22 @@ def run_smoke_tests():
     assert len(meta) == 2
     print("  ✓ Report alignment and verification passed.")
 
-    # 3. Test API Module
-    print("\n[Test 3] Testing centralized API and model configurations...")
+    # 3. Test Groq message compatibility
+    print("\n[Test 3] Testing unsupported CrewAI cache metadata cleanup...")
+    from tools.groq_compat import strip_cache_breakpoints
+
+    messages = [
+        {"role": "system", "content": "Instructions", "cache_breakpoint": True},
+        {"role": "user", "content": "Research topic", "cache_breakpoint": True},
+        {"role": "assistant", "content": "Response"},
+    ]
+    strip_cache_breakpoints(messages)
+    assert all("cache_breakpoint" not in message for message in messages)
+    assert messages[0]["content"] == "Instructions"
+    print("  ✓ Cache metadata removed while message content is preserved.")
+
+    # 4. Test API Module
+    print("\n[Test 4] Testing centralized API and model configurations...")
     from api import format_groq_model_identifier, validate_api_keys, get_groq_model
 
     formatted_model = format_groq_model_identifier("openai/gpt-oss-120b")
@@ -108,8 +122,8 @@ def run_smoke_tests():
     is_valid, msg = validate_api_keys()
     print(f"  ✓ API key validator returned: valid={is_valid}, msg='{msg}'")
 
-    # 4. Test Agent and Task Construction
-    print("\n[Test 4] Testing Agent and Task factory structures...")
+    # 5. Test Agent and Task Construction
+    print("\n[Test 5] Testing Agent and Task factory structures...")
     from agents.manager_agent import _load_manager_config
     from tasks.research_plan_task import _load_task_config
 

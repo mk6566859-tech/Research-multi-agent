@@ -13,6 +13,10 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from crewai import Crew, Process
+from crewai.hooks.llm_hooks import (
+    register_before_llm_call_hook,
+    unregister_before_llm_call_hook,
+)
 
 from api import get_crewai_llm, validate_api_keys
 from agents import (
@@ -31,10 +35,15 @@ from tasks import (
 )
 from tools.source_utils import GLOBAL_SOURCE_REGISTRY, SourceRecord
 from tools.citation_utils import verify_and_align_report
+from tools.groq_compat import strip_cache_breakpoints
 from tools.tavily_search_tool import TavilySearchTool
 
 
 logger = logging.getLogger(__name__)
+
+
+def _remove_unsupported_cache_breakpoints(context: Any) -> None:
+    strip_cache_breakpoints(context.messages)
 
 
 @dataclass
@@ -163,16 +172,23 @@ class ResearchPilotCrew:
                 ],
                 process=Process.sequential,
                 verbose=True,
+                memory=False,
+                cache=False,
             )
 
-            # 8. Kick off multi-agent workflow
-            crew_output = crew.kickoff(
-                inputs={
-                    "topic": clean_topic,
-                    "research_depth": self.research_depth,
-                    "focus_area": self.focus_area,
-                }
-            )
+            # LiteLLM's Groq adapter forwards CrewAI's internal marker as an
+            # API message property; Groq rejects it, so strip it before each call.
+            register_before_llm_call_hook(_remove_unsupported_cache_breakpoints)
+            try:
+                crew_output = crew.kickoff(
+                    inputs={
+                        "topic": clean_topic,
+                        "research_depth": self.research_depth,
+                        "focus_area": self.focus_area,
+                    }
+                )
+            finally:
+                unregister_before_llm_call_hook(_remove_unsupported_cache_breakpoints)
 
             raw_text = str(crew_output.raw) if hasattr(crew_output, "raw") else str(crew_output)
 

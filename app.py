@@ -68,6 +68,10 @@ st.markdown(
 )
 
 
+def _set_research_topic(topic: str) -> None:
+    st.session_state["research_topic"] = topic
+
+
 def render_sidebar():
     """Render sidebar controls, settings, and credentials status."""
     st.sidebar.title("⚙️ Configuration")
@@ -162,19 +166,31 @@ def main():
     # Example topics for one-click discovery
     st.markdown("**💡 Or pick an example topic:**")
     example_cols = st.columns(3)
-    preset_topic = ""
-    if example_cols[0].button("🛡️ AI in Cybersecurity Trends", use_container_width=True):
-        preset_topic = "Impact of Generative AI on Cybersecurity Defense and Phishing in 2026"
-    if example_cols[1].button("🔋 Solid-State Battery Breakthroughs", use_container_width=True):
-        preset_topic = "Recent Commercial Breakthroughs and Timelines in Solid-State Batteries"
-    if example_cols[2].button("🧠 Open-Weights LLM Ecosystem", use_container_width=True):
-        preset_topic = "Current State and Performance of Open-Weights Reasoning Models in 2026"
+    if "research_topic" not in st.session_state:
+        st.session_state["research_topic"] = ""
 
     # Research topic text input
-    initial_value = preset_topic if preset_topic else ""
+    example_topics = [
+        "Impact of Generative AI on Cybersecurity Defense and Phishing in 2026",
+        "Recent Commercial Breakthroughs and Timelines in Solid-State Batteries",
+        "Current State and Performance of Open-Weights Reasoning Models in 2026",
+    ]
+    example_labels = [
+        "🛡️ AI in Cybersecurity Trends",
+        "🔋 Solid-State Battery Breakthroughs",
+        "🧠 Open-Weights LLM Ecosystem",
+    ]
+    for column, label, topic in zip(example_cols, example_labels, example_topics):
+        column.button(
+            label,
+            use_container_width=True,
+            on_click=_set_research_topic,
+            args=(topic,),
+        )
+
     user_topic = st.text_input(
         "Enter your research topic or question:",
-        value=initial_value,
+        key="research_topic",
         placeholder="e.g., Global advances in nuclear fusion energy experiments and commercial targets",
     )
 
