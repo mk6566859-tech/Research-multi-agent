@@ -229,6 +229,6 @@ See the step-by-step guide in [DEPLOYMENT.md](file:///e:/Research%20piolot%20mul
 | Issue | Cause | Solution |
 |---|---|---|
 | **"Missing required credentials"** | `GROQ_API_KEY` or `TAVILY_API_KEY` is not detected. | Check that `.streamlit/secrets.toml` exists locally or that keys are saved in Streamlit Cloud Secrets. |
-| **"Rate limit reached on Groq"** | High query volume on free Groq tier. | Wait 60 seconds and retry, or select "Quick" research depth in the sidebar to reduce token consumption. |
+| **"Rate limit reached on Groq"** | Groq's per-minute token budget is exceeded. | ResearchPilot caps generated output and prompt size, limits retrieved snippets, and avoids duplicate task context. If the account's rolling limit is still exhausted, wait and retry or choose "Quick" research depth. |
 | **"Tavily search returned 0 results"** | The query is too narrow or uses uncommon syntax. | Rephrase your research topic using broader, standard keywords. |
 | **No citations visible** | Sources section was omitted by LLM output. | ResearchPilot's `citation_utils.py` will automatically append the verified sources directory at the bottom. |

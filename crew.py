@@ -35,7 +35,7 @@ from tasks import (
 )
 from tools.source_utils import GLOBAL_SOURCE_REGISTRY, SourceRecord
 from tools.citation_utils import verify_and_align_report
-from tools.groq_compat import strip_cache_breakpoints
+from tools.groq_compat import prepare_groq_messages
 from tools.tavily_search_tool import TavilySearchTool
 
 
@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 def _remove_unsupported_cache_breakpoints(context: Any) -> None:
-    strip_cache_breakpoints(context.messages)
+    prepare_groq_messages(context.messages)
 
 
 @dataclass
@@ -112,7 +112,7 @@ class ResearchPilotCrew:
 
             # 4. Initialize cloud-based Tavily search tool
             tavily_depth = "advanced" if self.research_depth.lower() == "deep" else "basic"
-            max_res = 8 if self.research_depth.lower() == "deep" else 5
+            max_res = 4 if self.research_depth.lower() == "deep" else 3
             search_tool = TavilySearchTool(search_depth=tavily_depth, max_results=max_res)
 
             # 5. Build the 5 specialized agents
@@ -145,13 +145,13 @@ class ResearchPilotCrew:
             fact_check_task = create_fact_check_task(
                 agent=fact_checker_agent,
                 topic=clean_topic,
-                context=[analysis_task, research_task],
+                context=[analysis_task],
             )
 
             report_task = create_report_task(
                 agent=writer_agent,
                 topic=clean_topic,
-                context=[fact_check_task, analysis_task],
+                context=[fact_check_task],
             )
 
             # 7. Assemble the Crew

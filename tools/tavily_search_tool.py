@@ -17,6 +17,7 @@ from tools.source_utils import GLOBAL_SOURCE_REGISTRY, normalize_url, extract_do
 
 
 logger = logging.getLogger(__name__)
+MAX_SNIPPET_CHARS = 400
 
 
 class TavilySearchInput(BaseModel):
@@ -106,6 +107,8 @@ class TavilySearchTool(BaseTool):
                 raw_url = r.get("url", "")
                 title = r.get("title", "Untitled Web Document")
                 content = r.get("content", "")
+                if len(content) > MAX_SNIPPET_CHARS:
+                    content = content[:MAX_SNIPPET_CHARS].rsplit(" ", 1)[0] + "..."
                 pub_date = r.get("published_date")
                 score = r.get("score")
 

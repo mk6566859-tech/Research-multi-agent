@@ -16,6 +16,7 @@ from typing import Any
 from crewai import LLM
 
 DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b"
+GROQ_MAX_COMPLETION_TOKENS = 1024
 
 
 def get_secret(key: str, default: str | None = None) -> str | None:
@@ -83,7 +84,7 @@ def format_groq_model_identifier(model_name: str) -> str:
 def get_crewai_llm(
     model_name: str | None = None,
     temperature: float = 0.2,
-    max_tokens: int = 4096,
+    max_tokens: int = GROQ_MAX_COMPLETION_TOKENS,
 ) -> LLM:
     """
     Initialize and return a centralized CrewAI LLM instance configured for Groq.

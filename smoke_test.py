@@ -94,25 +94,43 @@ def run_smoke_tests():
 
     # 3. Test Groq message compatibility
     print("\n[Test 3] Testing unsupported CrewAI cache metadata cleanup...")
-    from tools.groq_compat import strip_cache_breakpoints
+    from tools.groq_compat import (
+        MAX_GROQ_PROMPT_BYTES,
+        TRUNCATION_MARKER,
+        prepare_groq_messages,
+    )
 
     messages = [
         {"role": "system", "content": "Instructions", "cache_breakpoint": True},
-        {"role": "user", "content": "Research topic", "cache_breakpoint": True},
+        {"role": "user", "content": "Research topic " * 1000, "cache_breakpoint": True},
         {"role": "assistant", "content": "Response"},
     ]
-    strip_cache_breakpoints(messages)
+    prepare_groq_messages(messages)
     assert all("cache_breakpoint" not in message for message in messages)
     assert messages[0]["content"] == "Instructions"
-    print("  ✓ Cache metadata removed while message content is preserved.")
+    prompt_bytes = sum(
+        len(message["content"].encode("utf-8"))
+        for message in messages
+        if isinstance(message.get("content"), str)
+    )
+    assert prompt_bytes <= MAX_GROQ_PROMPT_BYTES
+    assert TRUNCATION_MARKER in messages[1]["content"]
+    print("  ✓ Cache metadata removed and prompt bounded with content retained.")
 
     # 4. Test API Module
     print("\n[Test 4] Testing centralized API and model configurations...")
-    from api import format_groq_model_identifier, validate_api_keys, get_groq_model
+    from api import (
+        GROQ_MAX_COMPLETION_TOKENS,
+        format_groq_model_identifier,
+        get_groq_model,
+        validate_api_keys,
+    )
 
     formatted_model = format_groq_model_identifier("openai/gpt-oss-120b")
     assert formatted_model == "groq/openai/gpt-oss-120b", f"Unexpected formatted model: {formatted_model}"
     print(f"  ✓ Groq model identifier formatting passed: {formatted_model}")
+    assert GROQ_MAX_COMPLETION_TOKENS == 1024
+    print(f"  ✓ Groq completion budget confirmed: {GROQ_MAX_COMPLETION_TOKENS} tokens")
 
     default_model = get_groq_model()
     assert default_model == "openai/gpt-oss-120b"
