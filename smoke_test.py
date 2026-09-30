@@ -129,7 +129,7 @@ def run_smoke_tests():
     formatted_model = format_groq_model_identifier("openai/gpt-oss-120b")
     assert formatted_model == "groq/openai/gpt-oss-120b", f"Unexpected formatted model: {formatted_model}"
     print(f"  ✓ Groq model identifier formatting passed: {formatted_model}")
-    assert GROQ_MAX_COMPLETION_TOKENS == 1024
+    assert GROQ_MAX_COMPLETION_TOKENS == 768
     print(f"  ✓ Groq completion budget confirmed: {GROQ_MAX_COMPLETION_TOKENS} tokens")
 
     default_model = get_groq_model()

@@ -16,7 +16,7 @@ from typing import Any
 from crewai import LLM
 
 DEFAULT_GROQ_MODEL = "openai/gpt-oss-120b"
-GROQ_MAX_COMPLETION_TOKENS = 1024
+GROQ_MAX_COMPLETION_TOKENS = 768
 
 
 def get_secret(key: str, default: str | None = None) -> str | None:

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 
-MAX_GROQ_PROMPT_BYTES = 5000
+MAX_GROQ_PROMPT_BYTES = 2500
 TRUNCATION_MARKER = "\n[Earlier context omitted to stay within Groq's request limit.]\n"
 
 
